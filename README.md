@@ -72,3 +72,75 @@ Para deletar um pod, usamos o comando `kubectl delete pod <nome-do-pod>`. Ou pod
 Para verificar a deleção ou capturar o nome do pod: `kubectl get pods`.
 
 Com o comando `kubectl exec -it portal-noticias -- bash` podemos acessar o terminal do pod `portal-noticias`, executando o comando `bash`.
+
+## Services
+
+Com o comando `kubectl describe pod portal-noticias` podemos ver os detalhes do pod, inclusive o endereço IP. Esse endereço pode ser acessado dos outros containers dentro do cluster, mas não de fora dele, a menos que seja exposto através de um serviço (Service) ou Ingress.
+
+![alt text](pods-ip.png)
+
+Um [Service](https://kubernetes.io/docs/concepts/services-networking/service/) é um recurso do Kubernetes que fornece um ponto de acesso estável para os pods, mesmo que eles sejam criados ou destruídos dinamicamente. São capazes de prover abstrações pra expor aplicações, proveem IP's fixos para comunicação, proveem um DNS para um mais pods e são capazes de fazer balanceamento de carga.
+Os tipos de serviços mais comuns são:
+
+### ClusterIP
+
+ClusterIP: expõe o serviço dentro do cluster, permitindo que os pods se comuniquem entre si.
+  ![alt text](service-cluster-ip.png)
+
+Abaixo criamos um serviço que expõe a porta 9000 e a direciona para a porta 80 do pod com a propriedade metadata.label "app" igual a "segundo-pod".
+
+   ```yaml
+   apiVersion: v1
+   kind: Service
+   metadata:
+   name: svc-pod-2
+   spec:
+   type: ClusterIP
+   selector:
+      app: segundo-pod
+   ports:
+      - protocol: TCP
+         port: 9000
+         targetPort: 80
+   ```
+
+Para criar o serviço, usamos o comando `kubectl apply -f <filename-service.yaml>` dentro da pasta onde o arquivo está. Já `kubectl get svc` lista os serviços criados.
+![alt text](service-cluster-ip-list.png)
+
+Usamos `kubectl get pods -o wide` mostra os pods com mais detalhes, incluindo o IP do pod.
+![alt text](service-cluster-ip-pods.png)
+
+Acessando o bash do pod-1 conseguimos executar uma request curl para o cluster-ip do [svc-pod-2](services/svc-pod-2.yaml).:
+<details>
+   <summary>Exemplo de request curl</summary>
+   ![alt text](service-cluster-ip-curl.png)
+</details>
+
+### NodePort
+NodePort: permite comunicação com o mundo externo
+![alt text](service-node-port.png)
+
+O aruqivo abaixo configura um serviço NodePort que expõe o pod `primeiro-pod` na porta 30000 ([services/svc-pod-1.yaml](services/svc-pod-1.yaml)):
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-pod-1
+spec:
+  type: NodePort
+  selector:
+    app: primeiro-pod
+  ports:
+    - port: 80
+      nodePort: 30000
+```
+
+No linux é suficiente acessar o Internal_IP porta 30000 capturado do comando `kubectl get node -o wide` para acessar a aplicação nginx no navegador.
+
+No Mac M1 é necessário executar `minikube service svc-pod-1` para acessar o serviço no navegador.
+
+![alt text](service-node-port-minikube.png)
+
+Assim podemos acessar o nginx no navegador em `http://127.0.0.1:54755/`.
+
+### LoadBalancer
