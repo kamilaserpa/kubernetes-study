@@ -104,6 +104,8 @@ Abaixo criamos um serviço que expõe a porta 9000 e a direciona para a porta 80
          targetPort: 80
    ```
 
+> Se a porta de entrada for a mesma da saída basta ocultar a propriedade `targetPort`, então a propriedade `port` será a mesma para `targetPort`.
+
 Para criar o serviço, usamos o comando `kubectl apply -f <filename-service.yaml>` dentro da pasta onde o arquivo está. Já `kubectl get svc` lista os serviços criados.
 ![alt text](assets/service-cluster-ip-list.png)
 
@@ -152,3 +154,18 @@ O arquivo de configuração ([services/svc-pod-1.yaml](services/svc-pod-1.yaml))
 * kubectl delete service svc-pod-1
 * kubectl apply -f svc-pod-1-loadbalancer.yaml
 * minikube service svc-pod-1-loadbalancer
+
+> No Mac, ao usar o minikube para expor o service é selecionada uma porta aleatória para o serviço, diferente da `nodePort`: `minikube service <service-name> --url` [stackoverflow](https://stackoverflow.com/questions/69438912/kubernetes-nodeport-url-getting-changed-with-minikube-service-service).
+
+### Exemplo: Portal Notícias
+
+Para trabalhar com services vamos criar um portal de notícias. Um serviço para o portal de notícias ([svc-portal-noticias.yaml](svc-portal-noticias.yaml)) e outro serviço para o sistema e acesso aos dados  que serão exibidos no portal ([svc-sistema-noticias.yaml](svc-sistema-noticias.yaml)).
+
+
+![Diagrama de services e containers do Sistema Portal notícias](assets/sistema-portal-noticias.png)
+
+```bash
+$ kubectl apply -f sistema-noticias.yaml
+$ kubectl apply -f svc-sistema-noticias.yaml
+$ minikube service svc-sistema-noticias --url
+```
