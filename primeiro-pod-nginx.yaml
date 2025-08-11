@@ -4,5 +4,5 @@ metadata:
   name: primeiro-pod-nginx
 spec:
   containers:
-  - name: nginx-container
-    image: nginx:latest
+    - name: nginx-container
+      image: nginx:latest

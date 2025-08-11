@@ -157,15 +157,27 @@ O arquivo de configuração ([services/svc-pod-1.yaml](services/svc-pod-1.yaml))
 
 > No Mac, ao usar o minikube para expor o service é selecionada uma porta aleatória para o serviço, diferente da `nodePort`: `minikube service <service-name> --url` [stackoverflow](https://stackoverflow.com/questions/69438912/kubernetes-nodeport-url-getting-changed-with-minikube-service-service).
 
+**Por que o minikube service mostra uma porta aleatória?**
+
+O comando minikube service cria um túnel temporário entre o host e o nó Kubernetes.
+
+Como esse túnel é feito via kubectl proxy/port-forwarding, ele escolhe uma porta livre no host (no seu caso 50250), ignorando a porta nodePort que está dentro do container do nó.
+
+Para forçar o roteamento podemos executar: `kubectl port-forward svc/<service-name> <node-port>:<svc-port>`.
+
 ### Exemplo: Portal Notícias
 
 Para trabalhar com services vamos criar um portal de notícias. Um serviço para o portal de notícias ([svc-portal-noticias.yaml](svc-portal-noticias.yaml)) e outro serviço para o sistema e acesso aos dados  que serão exibidos no portal ([svc-sistema-noticias.yaml](svc-sistema-noticias.yaml)).
 
 
-![Diagrama de services e containers do Sistema Portal notícias](assets/sistema-portal-noticias.png)
+![Diagrama de services e containers do Sistema Portal notícias](assets/sistema-portal-noticias-diagram.png)
 
 ```bash
+$ minikube start --driver=docker --ports=30000:30000,30001:30001,30002:30002,30003:30003
 $ kubectl apply -f sistema-noticias.yaml
 $ kubectl apply -f svc-sistema-noticias.yaml
-$ minikube service svc-sistema-noticias --url
+# Faz o túnel da porta 80 do service para a 30001 no host
+$ kubectl port-forward svc/svc-portal-noticias 30000:80
+# Acessa o portal de notícias no navegador em uma porta aleatória, desnecessário se o comando anterior for executado 
+# $ minikube service svc-sistema-noticias --url
 ```
