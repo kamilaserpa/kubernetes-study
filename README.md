@@ -181,3 +181,23 @@ $ kubectl port-forward svc/svc-portal-noticias 30000:80
 # Acessa o portal de notícias no navegador em uma porta aleatória, desnecessário se o comando anterior for executado 
 # $ minikube service svc-sistema-noticias --url
 ```
+
+Vamos usar um banco de dados MySQL (https://hub.docker.com/_/mysql) para armazenar as notícias. O serviço do banco de dados ([svc-db-noticias.yaml](svc-db-noticias.yaml)) será do tipo ClusterIP, pois não precisamos acessá-lo diretamente do mundo externo, apenas os pods do sistema de notícias precisam se comunicar com ele.
+
+Podemos visualizar os bancos de dados presentes no pod seguindo os comandos:
+
+```bash
+$ kubectl exec -it db-noticias -- bash
+$ mysql -u root -p
+# q1w2e3r4
+$ show databases;
+```
+
+Também podemos acessa o arquivo bancodedados.php que contém as configurações de conexão com o banco de dados:
+
+```bash
+$ kubectl exec -it sistema-noticias -- bash
+cat bancodedados.php
+```
+
+
