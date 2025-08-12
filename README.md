@@ -200,4 +200,19 @@ $ kubectl exec -it sistema-noticias -- bash
 cat bancodedados.php
 ```
 
+Para não acoplar informações do recurso com informações de configuração foi utilizado o ConfigMap ([configmap-noticias.yaml](configmap-noticias.yaml)) que contém as variáveis de ambiente necessárias para a conexão com o banco de dados.
+
+O ConfigMap é um recurso do Kubernetes que permite armazenar dados de configuração em pares chave-valor, que podem ser referenciados pelos pods: [db-configmap.yaml](db-configmap.yaml).
+
+Podemos visualizar o ConfigMap com o comando:
+
+```bash
+$ kubectl get configmap
+$ kubectl describe configmap db-configmap
+# $ kubectl get configmap db-configmap -o yaml
+```
+
+
+
+
 
