@@ -10,4 +10,7 @@ spec:
       image: aluracursos/sistema-noticias:1
       ports:
         - containerPort: 80
+      envFrom:
+        - configMapRef:
+            name: sistema-configmap
         

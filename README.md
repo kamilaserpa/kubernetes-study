@@ -198,6 +198,8 @@ Também podemos acessa o arquivo bancodedados.php que contém as configurações
 ```bash
 $ kubectl exec -it sistema-noticias -- bash
 cat bancodedados.php
+$ kubectl apply -f portal-configmap.yaml
+cat configuracao.php
 ```
 
 Para não acoplar informações do recurso com informações de configuração foi utilizado o ConfigMap ([configmap-noticias.yaml](configmap-noticias.yaml)) que contém as variáveis de ambiente necessárias para a conexão com o banco de dados.
@@ -212,7 +214,27 @@ $ kubectl describe configmap db-configmap
 # $ kubectl get configmap db-configmap -o yaml
 ```
 
+Podemos referenciar cada variável de um arquivo ConfigMap em um pod utilizando `env`:
+```yaml
+  env:
+  - name: MYSQL_ROOT_PASSWORD
+    valueFrom:
+      configMapKeyRef:
+        name: db-configmap
+        key: MYSQL_ROOT_PASSWORD
+```
 
+Ou podemos referenciar todo o ConfigMap em um pod, com `envFrom`, como no exemplo:
+```yaml
+spec:
+  containers:
+    - ...
+      envFrom:
+        - configMapRef:
+            name: portal-configmap
+```
+
+Agora podemos efetuar login no navegador no serviço com admin/admin e visualizar as notícias cadastradas no portal de notícias.
 
 
 
