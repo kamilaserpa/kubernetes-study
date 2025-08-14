@@ -4,6 +4,8 @@ O [Kubernetes](https://kubernetes.io/docs/home/) é um mecanismo de orquestraç�
 
 Com o Kubernetes podemos gerenciar a escalabilidade, por exemplo.
 
+# Curso 1: Kubernetes: Pods, Services e ConfigMaps
+
 ## Escalabilidade
 Escalabilidade vertical ocorre quando se aumenta os recursos de um único nó, uma máquina, como CPU ou memória, para lidar com cargas de trabalho maiores. Isso pode ser feito através da configuração do Kubernetes para alocar mais recursos para os pods ou ajustando as especificações dos nós no cluster.
 
@@ -169,7 +171,6 @@ Para forçar o roteamento podemos executar: `kubectl port-forward svc/<service-n
 
 Para trabalhar com services vamos criar um portal de notícias. Um serviço para o portal de notícias ([svc-portal-noticias.yaml](svc-portal-noticias.yaml)) e outro serviço para o sistema e acesso aos dados  que serão exibidos no portal ([svc-sistema-noticias.yaml](svc-sistema-noticias.yaml)).
 
-
 ![Diagrama de services e containers do Sistema Portal notícias](assets/sistema-portal-noticias-diagram.png)
 
 ```bash
@@ -202,6 +203,7 @@ $ kubectl apply -f portal-configmap.yaml
 cat configuracao.php
 ```
 
+### ConfigMap
 Para não acoplar informações do recurso com informações de configuração foi utilizado o ConfigMap ([configmap-noticias.yaml](configmap-noticias.yaml)) que contém as variáveis de ambiente necessárias para a conexão com o banco de dados.
 
 O ConfigMap é um recurso do Kubernetes que permite armazenar dados de configuração em pares chave-valor, que podem ser referenciados pelos pods: [db-configmap.yaml](db-configmap.yaml).
@@ -236,5 +238,18 @@ spec:
 
 Agora podemos efetuar login no navegador no serviço com admin/admin e visualizar as notícias cadastradas no portal de notícias.
 
+# Curso 2: Kubernetes: Deployments, Volumes e Escalabilidade
 
+## ReplicaSet
+Um [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/) é um controlador que garante que um número especificado de réplicas de um pod esteja em execução a qualquer momento. Se um pod falhar ou for excluído, o ReplicaSet cria automaticamente um novo pod para substituí-lo, garantindo alta disponibilidade e resiliência do aplicativo.
 
+![alt text](assets/replicaset.png)
+
+```bash
+$ kubectl apply -f portal-noticias-replicaset.yaml
+$ kubectl get pods
+# Se deletarmos um pod
+$ kubectl delete pod portal-noticias
+# O ReplicaSet criará automaticamente um novo pod para substituí-lo
+$ kubectl get pods
+```
