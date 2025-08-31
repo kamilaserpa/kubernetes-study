@@ -124,7 +124,7 @@ Acessando o bash do pod-1 conseguimos executar uma request curl para o cluster-i
 NodePort: permite comunicação com o mundo externo
 ![alt text](assets/service-node-port.png)
 
-O aruqivo abaixo configura um serviço NodePort que expõe o pod `primeiro-pod` na porta 30000 ([services/svc-pod-1.yaml](services/svc-pod-1.yaml)):
+O arquivo abaixo configura um serviço NodePort que expõe o pod `primeiro-pod` na porta 30000 ([services/svc-pod-1.yaml](services/svc-pod-1.yaml)):
 ```yaml
 apiVersion: v1
 kind: Service
@@ -138,6 +138,12 @@ spec:
     - port: 80
       nodePort: 30000
 ```
+
+
+> Poderemos acessar em http://localhost:30000/ a aplicação. Para isso utilizamos o comando `minikube start --driver=docker --ports=30000:30000,30001:30001,30002:30002,30003:30003` que inicia um cluster Kubernetes com minikube, configurando o mapeamento de portas entre o host (sua máquina) e o cluster.
+> Porém o mais indicado é executar o comando `$ kubectl port-forward svc/svc-portal-noticias 30000:80` para criar um túnel da porta 80 do service para a 30000 no host. 
+> Pois proporciona mais segurança não expondo portas desnecessárias, funciona com qualquer clustere é o padrão da indústria apra acessar clusters remotos.
+> Veja mais detalhes em [LoadBalancer](#loadbalancer)/Por que o minikube service mostra uma porta aleatória?
 
 Utilizamos o IP do nó para acessar o service através da porta 30000. para visualizar usamos o comando `kubectl get node -o wide`.
 No linux é suficiente acessar o Internal_IP exibido, na porta 30000, configurada no service.
@@ -174,6 +180,7 @@ Para trabalhar com services vamos criar um portal de notícias. Um serviço para
 ![Diagrama de services e containers do Sistema Portal notícias](assets/sistema-portal-noticias-diagram.png)
 
 ```bash
+# Inicia um cluster Kubernetes. Configura o mapeamento de portas entre o host (sua máquina) e o cluster Minikube
 $ minikube start --driver=docker --ports=30000:30000,30001:30001,30002:30002,30003:30003
 $ kubectl apply -f sistema-noticias.yaml
 $ kubectl apply -f svc-sistema-noticias.yaml
@@ -253,3 +260,33 @@ $ kubectl delete pod portal-noticias
 # O ReplicaSet criará automaticamente um novo pod para substituí-lo
 $ kubectl get pods
 ```
+
+## Deployment
+Um [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) é um controlador que gerencia a criação e atualização de pods e ReplicaSets. Ele auxiliam no controle de versionamento e criam um ReplicaSet  automaticamente, assim o Kubernetes garante que esse estado seja alcançado e mantido.
+
+![alt text](assets/deployment.png)
+
+```bash
+# A linha abaixo adiciona uma anotação ao deployment nginx-deployment 
+$ kubectl annotate deployment nginx-deployment kubernetes.io/change-cause="Atualização do deployment"
+# Lista o histórico de rollouts do deployment
+$ kubectl rollout history deployment nginx-deployment
+```
+![alt text](assets/deployment-rollout-history.png)
+
+### Deployment x Replicaset
+
+A declaração é igual para ambos neste exemplo, mas o Deployment gerencia o ReplicaSet e o ReplicaSet gerencia os pods. A diferenca foi apenas o kind: Deployment ou ReplicaSet. Dessa forma não é mais necessário criar o ReplicaSet manualmente, arquivos desse kind permanecerão aqui apenas para consulta, porém apenas o Deployment será utilizado.
+
+Criamos e aplicamos os deployments para o portal, service e banco de dados:
+```bash
+$ kubectl apply -f sistema-noticias-deployment.yaml
+$ kubectl apply -f db-noticias-deployment.yaml
+$ kubectl annotate deployment db-noticias-deployment kubernetes.io/change-cause="Criando o banco de dados - versão 1"
+$ kubectl annotate deployment sistema-noticias-deployment kubernetes.io/change-cause="Executando o sistema - versão 1"
+ $ kubectl rollout history deployment db-noticias-deployment
+```
+
+Estrutura do projeto:
+
+![alt text](assets/deployments-project.png)

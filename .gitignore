@@ -1,0 +1,45 @@
+# Node modules / Dependências
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python / Pip
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.swp
+*.bak
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Kubernetes temporários / Cache
+.kube/
+.kustomize-cache/
+*.kubeconfig
+*.local.yaml
+*.local.yml
+
+# Helm / Charts gerados
+charts/
+*.tgz
+
+# Secrets (não versionar!)
+secrets.yaml
+*.secret.yaml
+*.env.local
+
+# Docker
+docker-compose.override.yml
+.docker/
+.cursor/
