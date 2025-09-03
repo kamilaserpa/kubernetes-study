@@ -284,9 +284,56 @@ $ kubectl apply -f sistema-noticias-deployment.yaml
 $ kubectl apply -f db-noticias-deployment.yaml
 $ kubectl annotate deployment db-noticias-deployment kubernetes.io/change-cause="Criando o banco de dados - versão 1"
 $ kubectl annotate deployment sistema-noticias-deployment kubernetes.io/change-cause="Executando o sistema - versão 1"
- $ kubectl rollout history deployment db-noticias-deployment
+$ kubectl rollout history deployment db-noticias-deployment
 ```
+
+### Rollback
+Para retornar a uma versão anterior de deployment podemos acessar o history e capturar a "REVISION", utilizamos esse dado como a versão que desejamos implantar no comando a
+
+`kubectl rollout undo deployment <nome do deployment> --to-revision=<versão a ser retornada>`
 
 Estrutura do projeto:
 
 ![alt text](assets/deployments-project.png)
+
+## Volumes: Persistência de dados
+
+Observamos que ao deletarmos os pods e aplicarmos o deployments perdemos os dados que estavam anteriormente no banco, vamos configurar a persistência para que os dados não sejam perdidos.
+
+Os volumes possuem ciclos de vida independentes dos containers. Porém, são dependentes dos pods. Se todos os containers falharesm , o pod vai falhar e o volume será removido.
+Porém se um container falhar, o volume continua existindo, pois o pod continua de pé.
+A seguir imagem que representa o pod, com dois containers, estando um em falha o volume continua existindo:
+
+![alt text](assets/volume-container-pod.png)
+
+O kubernetes possui vários tipos de volumes, neste curso será utilizado o hostPath, onde o diretório do host é montado dentro dos containers.
+
+```bash
+$ kubectl apply -f pod-volume.yaml
+$ kubectl exec -it pod-volume --container nginx-container -- bash
+$ cd volume-dentro-do-container
+$ root@pod-volume:/volume-dentro-do-container# touch arquivo.txt
+# irá criar o arquivo e este poderá ser acessado no host
+```
+
+No Linux estamos utilizando uma máquina virtual para criar e utilizar o cluster que é o minikube. Logo dentro desse sistema é que devemos criar a pasta de volume.
+Vamos criar uma pasta chamada "primeiro-volume" e referencia-lo em [pod-volume-minikube](pod-volume-minikube.yaml):
+
+```bash
+$ minikube ssh                                                                   main ✘
+docker@minikube:~$ cd /home
+docker@minikube:/home$ sudo mkdir primeiro-volume
+docker@minikube:/home$
+# logout Ctrl+D
+```
+
+No yaml podemos configurar para criar automaticamente esse diretório([pod-volume-v2.yaml](pod-volume-v2.yaml)):
+```yaml
+ hostPath:
+        path: /home/primeiro-volume
+        type: DirectoryOrCreate
+```
+EEntão nós podemos acessar a pasta dentro do container "volume-dentro-do-container", criar um arquivo nela. Em seguida podemos ver que esse arquivo também está presente na máquina que hospeda esse container:
+
+![volume-host.png](assets/volume-host.png)
+
