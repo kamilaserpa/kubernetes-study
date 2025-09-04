@@ -337,3 +337,43 @@ EEntão nós podemos acessar a pasta dentro do container "volume-dentro-do-conta
 
 ![volume-host.png](assets/volume-host.png)
 
+### PersistenceVolume
+
+![](assets/pv-pvc-graphic.png)
+
+O mecanismo de persistência depende do provisionador de storage. O objeto PersistentVolume (PV) e PersistentVolumeClaim (PVC) são abstrações do Kubernetes.
+
+Quem realmente provê o disco (storage backend) é o StorageClass (ex: GCE Persistent Disk, AWS EBS, Azure Disk, NFS, Ceph, HostPath, etc).
+
+Ou seja, o Kubernetes fala:
+“Preciso de um volume com 10Gi que seja persistente”
+➡️ Quem vai entregar esse volume depende do ambiente onde o cluster está rodando.
+
+Exemplos:
+
+ - Google Cloud (GKE) → usa GCE PersistentDisk (provisionador kubernetes.io/gce-pd)
+ - AWS (EKS) → usa EBS
+ - Azure (AKS) → usa AzureDisk/AzureFile
+
+#### O que é um PVC (PersistentVolumeClaim)?
+
+PVC (PersistentVolumeClaim) é um pedido de armazenamento persistente feito pelo desenvolvedor/aplicação.
+
+Ele funciona como uma “ponte” entre a aplicação (que precisa de storage) e o recurso físico de armazenamento (o PV).
+
+Analogia:
+
+ - PV (PersistentVolume) → é como se fosse um HD disponível no datacenter.
+ - PVC (PersistentVolumeClaim) → é como se fosse uma requisição de uso de parte desse HD, feita por um aplicativo.
+  
+  ## Storage Class
+
+  ![](assets/storage-class-graph.png)
+Um [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) é como uma “receita” para criar volumes dinamicamente no Kubernetes.
+Ele diz como e onde o Kubernetes deve provisionar um volume persistente (PV) quando um PVC é criado.
+
+Analogia:
+
+ - PV (PersistentVolume) → é um disco físico já pronto.
+ - PVC (PersistentVolumeClaim) → é um pedido de disco feito pela aplicação.
+ - StorageClass → é a regra de fábrica que sabe construir discos novos sob demanda.

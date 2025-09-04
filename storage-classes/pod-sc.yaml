@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pod-sc
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+    volumeMounts:
+      - mountPath: /volume-dentro-do-container
+        name: primeiro-pv
+  volumes:
+    - name: primeiro-volume
+      persistenceVolumeClaim:
+        claimName: pvc-2
+        
