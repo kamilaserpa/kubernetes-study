@@ -399,3 +399,21 @@ Para funcionar o PVC devemos ter um PersistentVolumeClaim chamado imagens-pvc cr
           persistentVolumeClaim:
             claimName: imagens-pvc
 ```
+
+## Probes
+
+### Liveness Probes
+
+ O kubelet determina se a nossa aplicação deve ser reiniciada ou não. Pois é possível que o pod esteja saudável, mas a aplicação inserida no container não esteja. Com o probes é possível tornar visível ao Kubernetes que uma aplicação não está se comportando da maneira esperada.
+
+ Qualquer código igual ou maior que 200 e menor que 400 significa sucesso, além disso ele considera falha.
+
+ ```yaml
+  livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            failureThreshold: 3 # número máximo de falhas antes de executar o reinício do container
+            initialDelaySeconds: 20 # tempo após o apply para iniciar os testes
+ ```
