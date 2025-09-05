@@ -383,6 +383,19 @@ Analogia:
 ![](assets/statefulset-deployment.png)
 
 Quando um pod reinicia ou falha, o arquivo é mantido na memória.
-Podemos ter diversos pods em cada StatefulSet.
+Podemos ter diversos pods em cada StatefulSet. StatefulSets usam PersistentVolumes e PersistentVolumeClaims para persistência de dados.
 
 ![](assets/statefulset-graph.png)
+
+Para verificar a pasta presente dentro sistema-noticias-container:
+`kubectl exec -it sistema-noticias-statefulset-0 -- bash`
+
+Ao deletarmos o statefulset com `kubectl delete pod sistema-noticias-statefulset-0` ele cria novamente o pod e mantém os dados dos pods anteriores.
+
+Para funcionar o PVC devemos ter um PersistentVolumeClaim chamado imagens-pvc criado.
+```yaml
+      volumes:
+        - name: imagens
+          persistentVolumeClaim:
+            claimName: imagens-pvc
+```

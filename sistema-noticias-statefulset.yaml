@@ -1,24 +1,36 @@
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: sistema-noticias-statefulset
-spec:
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        app: sistema-noticias
-      name: sistema-noticias
-    spec:
-      containers:
-        - name: sistema-noticias-container
-          image: aluracursos/sistema-noticias:1
-          ports:
-            - containerPort: 80
-          envFrom:
-            - configMapRef:
-                name: sistema-configmap
-  selector:
-    matchLabels:
-      app: sistema-noticias
-  serviceName: svc-sistema-noticias
+apiVersion: apps/v1                    # Versão da API do Kubernetes para recursos de aplicação
+kind: StatefulSet                      # Tipo de recurso: StatefulSet (mantém identidade única dos pods)
+metadata:                              # Metadados do recurso
+  name: sistema-noticias-statefulset   # Nome do StatefulSet
+spec:                                  # Especificação do StatefulSet
+  replicas: 2                          # Número de réplicas (pods) que devem estar rodando
+  template:                            # Template para criação dos pods
+    metadata:                          # Metadados dos pods
+      labels:                          # Labels aplicados aos pods
+        app: sistema-noticias          # Label identificando a aplicação
+      name: sistema-noticias           # Nome base dos pods (será sistema-noticias-0, sistema-noticias-1, etc.)
+    spec:                              # Especificação dos pods
+      containers:                      # Lista de containers no pod
+        - name: sistema-noticias-container  # Nome do container
+          image: aluracursos/sistema-noticias:1  # Imagem Docker a ser usada
+          ports:                       # Portas expostas pelo container
+            - containerPort: 80        # Porta 80 do container
+          envFrom:                     # Variáveis de ambiente vindas de fontes externas
+            - configMapRef:            # Referência a um ConfigMap
+                name: sistema-configmap # Nome do ConfigMap com as variáveis de ambiente
+          volumeMounts:                # Montagem de volumes no container
+            - name: imagens             # Nome do volume a ser montado
+              mountPath: /var/www/html/uploads  # Caminho dentro do container onde o volume será montado
+            - name: sessao              # Nome do segundo volume a ser montado
+              mountPath: /tmp           # Caminho dentro do container para o volume de sessão
+      volumes:                          # Definição dos volumes disponíveis no pod
+        - name: imagens                 # Nome do volume para armazenar imagens
+          persistentVolumeClaim:        # Tipo de volume: PersistentVolumeClaim
+            claimName: imagens-pvc      # Nome do PVC que fornece o armazenamento persistente
+        - name: sessao                  # Nome do volume para armazenar dados de sessão
+          persistentVolumeClaim:        # Tipo de volume: PersistentVolumeClaim
+            claimName: sessao-pvc       # Nome do PVC que fornece o armazenamento persistente
+  selector:                            # Seletor para identificar os pods gerenciados
+    matchLabels:                       # Critério de seleção baseado em labels
+      app: sistema-noticias            # Seleciona pods com este label
+  serviceName: svc-sistema-noticias    # Nome do Service que fornece rede estável para os pods
