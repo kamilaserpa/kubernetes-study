@@ -377,3 +377,12 @@ Analogia:
  - PV (PersistentVolume) → é um disco físico já pronto.
  - PVC (PersistentVolumeClaim) → é um pedido de disco feito pela aplicação.
  - StorageClass → é a regra de fábrica que sabe construir discos novos sob demanda.
+
+## Stateful Set
+
+![](assets/statefulset-deployment.png)
+
+Quando um pod reinicia ou falha, o arquivo é mantido na memória.
+Podemos ter diversos pods em cada StatefulSet.
+
+![](assets/statefulset-graph.png)
