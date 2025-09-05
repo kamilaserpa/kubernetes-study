@@ -22,8 +22,15 @@ spec:
               path: /
               port: 80
             periodSeconds: 10
-            failureThreshold: 3 # número máximo de falhas antes de executar o reinício do container
+            failureThreshold: 3 # Se não conseguir executar 3 vezes reinicia o conatiner
             initialDelaySeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /inserir_noticias.php
+              port: 80
+            periodSeconds: 10    # Aguarda 10s antes da primeira verificação
+            failureThreshold: 5  # 5 falhas consecutivas = probe falha
+            initialDelaySeconds: 3
   replicas: 3
   selector:
     matchLabels:

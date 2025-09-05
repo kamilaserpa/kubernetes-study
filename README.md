@@ -417,3 +417,16 @@ Para funcionar o PVC devemos ter um PersistentVolumeClaim chamado imagens-pvc cr
             failureThreshold: 3 # número máximo de falhas antes de executar o reinício do container
             initialDelaySeconds: 20 # tempo após o apply para iniciar os testes
  ```
+
+ ### Readlines
+
+![](assets/readiness-probe.png)
+
+ O readinessProbe é um mecanismo do Kubernetes que determina se um container está pronto para receber tráfego. Diferente do livenessProbe (que verifica se o container está vivo), o readiness probe verifica se o container está funcionalmente pronto para atender requisições.
+
+ Como funciona:
+1. Verificação periódica: O Kubernetes executa o probe em intervalos regulares
+2. Remoção do Service: Se o probe falha, o pod é removido do Service (não recebe mais tráfego)
+3. Reintegração: Quando o probe volta a passar, o pod é reintegrado ao Service
+
+O failureThreshold define quantas falhas consecutivas são permitidas antes que o Kubernetes considere o probe como "falhou definitivamente".
